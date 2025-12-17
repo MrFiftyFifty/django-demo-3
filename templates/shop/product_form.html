@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <a href="{% url 'product_list' %}" class="back-link">← Назад</a>
+    <h2>{% if action == 'add' %}Добавить товар{% else %}Редактировать товар{% endif %}</h2>
+    <form method="post" enctype="multipart/form-data" style="max-width: 600px;">
+        {% csrf_token %}
+        {% if action == 'edit' %}
+        <div class="form-group">
+            <label>ID (только чтение):</label>
+            <input type="text" value="{{ product.id }}" class="form-control" readonly>
+        </div>
+        {% endif %}
+        {% for field in form %}
+        <div class="form-group">
+            <label>{{ field.label }}:</label>
+            {{ field }}
+            {% for error in field.errors %}
+            <div class="alert alert-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-success">Сохранить</button>
+        <a href="{% url 'product_list' %}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

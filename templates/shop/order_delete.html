@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="max-width: 500px; margin: 100px auto; text-align: center;">
+    <h2 style="color: #dc3545; margin-bottom: 20px;">Подтверждение удаления</h2>
+    <p>Удалить заказ {{ order.order_number }}?</p>
+    <p>Клиент: {{ order.user.profile.full_name }}</p>
+    <p>Сумма: {{ order.total_amount }} ₽</p>
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+            <button type="submit" class="btn btn-danger">Удалить</button>
+            <a href="{% url 'order_list' %}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

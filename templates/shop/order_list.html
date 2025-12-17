@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>Список заказов</h1>
+        <div class="user-info">
+            <span class="user-name">{{ user.profile.full_name }}</span>
+            <a href="{% url 'product_list' %}" class="btn btn-secondary">К товарам</a>
+            {% if role == 'admin' %}
+            <a href="{% url 'order_add' %}" class="btn btn-success">Добавить заказ</a>
+            {% endif %}
+            <a href="{% url 'logout' %}" class="btn btn-danger">Выйти</a>
+        </div>
+    </div>
+    <div class="filters">
+        <form method="get" style="display: flex; gap: 15px; width: 100%;">
+            <input type="text" name="search" placeholder="Поиск по номеру или ФИО..." value="{{ search }}" class="form-control">
+            <select name="status" class="form-control">
+                <option value="">Все статусы</option>
+                <option value="processing" {% if status_filter == 'processing' %}selected{% endif %}>В обработке</option>
+                <option value="assembled" {% if status_filter == 'assembled' %}selected{% endif %}>Собран</option>
+                <option value="in_transit" {% if status_filter == 'in_transit' %}selected{% endif %}>В пути</option>
+                <option value="delivered" {% if status_filter == 'delivered' %}selected{% endif %}>Доставлен</option>
+                <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Отменен</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Применить</button>
+            <a href="{% url 'order_list' %}" class="btn btn-secondary">Сбросить</a>
+        </form>
+    </div>
+    <div class="order-list">
+        {% for order in orders %}
+        <div class="order-card status-{{ order.status }}">
+            <div class="order-header">
+                <div>
+                    <strong>Заказ {{ order.order_number }}</strong><br>
+                    <small>{{ order.order_date|date:"d.m.Y H:i" }}</small>
+                </div>
+                <div>
+                    <strong>Статус:</strong> {{ order.get_status_display }}<br>
+                    <strong>Сумма:</strong> {{ order.total_amount }} ₽
+                </div>
+            </div>
+            <div><strong>Клиент:</strong> {{ order.user.profile.full_name }}</div>
+            <div><strong>Пункт выдачи:</strong> {{ order.pickup_point.address }}</div>
+            <div style="margin-top: 10px;">
+                <a href="{% url 'order_detail' order.id %}" class="btn btn-primary">Подробнее</a>
+                {% if role == 'admin' %}
+                <a href="{% url 'order_edit' order.id %}" class="btn btn-secondary">Редактировать</a>
+                <a href="{% url 'order_delete' order.id %}" class="btn btn-danger">Удалить</a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <p>Заказов нет</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

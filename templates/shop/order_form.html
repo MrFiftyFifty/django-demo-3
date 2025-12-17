@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <a href="{% url 'order_list' %}" class="back-link">← Назад</a>
+    <h2>{% if action == 'add' %}Создать заказ{% else %}Редактировать заказ {{ order.order_number }}{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group">
+            <label>{{ field.label }}:</label>
+            {{ field }}
+            {% for error in field.errors %}<div class="alert alert-error">{{ error }}</div>{% endfor %}
+        </div>
+        {% endfor %}
+        <button type="submit" name="update_order" class="btn btn-success">Сохранить заказ</button>
+    </form>
+    {% if action == 'edit' %}
+    <h3 style="margin-top: 30px;">Товары в заказе (Сумма: {{ order.total_amount }} ₽)</h3>
+    <table>
+        <tr><th>Товар</th><th>Цена</th><th>Кол-во</th><th>Сумма</th><th>Действие</th></tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.price_at_purchase }} ₽</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.subtotal }} ₽</td>
+            <td>
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                    <button type="submit" name="delete_item" class="btn btn-danger" style="font-size: 12px; padding: 4px 8px;">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Товары не добавлены</td></tr>
+        {% endfor %}
+    </table>
+    <h3 style="margin-top: 20px;">Добавить товар</h3>
+    <form method="post" style="max-width: 600px;">
+        {% csrf_token %}
+        {% for field in item_form %}
+        <div class="form-group">
+            <label>{{ field.label }}:</label>
+            {{ field }}
+        </div>
+        {% endfor %}
+        <button type="submit" name="add_item" class="btn btn-primary">Добавить</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

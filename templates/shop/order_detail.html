@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <a href="{% url 'order_list' %}" class="back-link">← Назад к заказам</a>
+    <h2>Заказ {{ order.order_number }}</h2>
+    <div style="margin: 20px 0;">
+        <p><strong>Клиент:</strong> {{ order.user.profile.full_name }}</p>
+        <p><strong>Дата заказа:</strong> {{ order.order_date|date:"d.m.Y H:i" }}</p>
+        <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+        <p><strong>Пункт выдачи:</strong> {{ order.pickup_point.address }}</p>
+        <p><strong>Код получения:</strong> {{ order.pickup_code }}</p>
+        {% if order.delivery_date %}
+        <p><strong>Дата выдачи:</strong> {{ order.delivery_date|date:"d.m.Y" }}</p>
+        {% endif %}
+        {% if order.comment %}
+        <p><strong>Комментарий:</strong> {{ order.comment }}</p>
+        {% endif %}
+    </div>
+    <h3>Состав заказа:</h3>
+    <table>
+        <tr>
+            <th>Товар</th>
+            <th>Цена</th>
+            <th>Количество</th>
+            <th>Сумма</th>
+        </tr>
+        {% for item in order.items.all %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.price_at_purchase }} ₽</td>
+            <td>{{ item.quantity }} {{ item.product.unit }}</td>
+            <td>{{ item.subtotal }} ₽</td>
+        </tr>
+        {% endfor %}
+        <tr style="font-weight: bold;">
+            <td colspan="3">Итого:</td>
+            <td>{{ order.total_amount }} ₽</td>
+        </tr>
+    </table>
+</div>
+{% endblock %}
