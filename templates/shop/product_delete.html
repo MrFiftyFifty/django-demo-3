@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Удалить товар{% endblock %}
+
+{% block content %}
+<div class="delete-confirmation">
+    <h2>Подтверждение удаления</h2>
+    
+    <p>Вы действительно хотите удалить товар:</p>
+    <p><strong>{{ product.name }}</strong> ({{ product.article }})?</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="delete-actions">
+            <button type="submit" class="btn btn-danger">Удалить</button>
+            <a href="{% url 'product_list' %}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

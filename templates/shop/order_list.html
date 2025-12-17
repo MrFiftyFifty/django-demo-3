@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Список заказов{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>Список заказов</h1>
+        <div class="user-info">
+            <span class="user-name">{{ user.profile.full_name }}</span>
+            <a href="{% url 'product_list' %}" class="btn btn-secondary">К товарам</a>
+            <a href="{% url 'logout' %}" class="btn btn-danger">Выйти</a>
+        </div>
+    </div>
+
+    <div class="order-list">
+        {% for order in orders %}
+        <div class="order-card">
+            <div class="order-header">
+                <div>
+                    <strong>Заказ #{{ order.id }}</strong><br>
+                    <small>{{ order.order_date|date:"d.m.Y H:i" }}</small>
+                </div>
+                <div>
+                    <strong>Статус:</strong> {{ order.get_status_display }}<br>
+                    <strong>Сумма:</strong> {{ order.total_amount }} ₽
+                </div>
+            </div>
+            
+            <div>
+                <strong>Клиент:</strong> 
+                {% if order.user.profile %}
+                    {{ order.user.profile.full_name }}
+                {% else %}
+                    {{ order.user.username }}
+                {% endif %}
+            </div>
+            
+            <div>
+                <strong>Пункт выдачи:</strong> {{ order.pickup_point.address }}
+            </div>
+            
+            <div>
+                <strong>Код получения:</strong> {{ order.pickup_code }}
+            </div>
+            
+            {% if order.delivery_date %}
+            <div>
+                <strong>Дата доставки:</strong> {{ order.delivery_date|date:"d.m.Y" }}
+            </div>
+            {% endif %}
+            
+            <div class="order-items">
+                <strong>Товары:</strong>
+                {% for item in order.items.all %}
+                <div class="order-item">
+                    {{ item.product.name }} - {{ item.quantity }} {{ item.product.unit }} x {{ item.price_at_purchase }} ₽ = {{ item.subtotal }} ₽
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% empty %}
+        <p>Заказов нет</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

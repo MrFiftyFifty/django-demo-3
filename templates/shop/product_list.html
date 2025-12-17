@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Список товаров{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>Канцелярские товары</h1>
+        <div class="user-info">
+            {% if user.is_authenticated %}
+                <span class="user-name">{{ user.profile.full_name }}</span>
+                {% if role == 'manager' or role == 'admin' %}
+                <a href="{% url 'order_list' %}" class="btn btn-secondary">Заказы</a>
+                {% endif %}
+                {% if role == 'admin' %}
+                <a href="{% url 'product_add' %}" class="btn btn-success">Добавить товар</a>
+                {% endif %}
+                <a href="{% url 'logout' %}" class="btn btn-danger">Выйти</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary">Войти</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if role == 'manager' or role == 'admin' %}
+    <div class="filters">
+        <form method="get" style="display: flex; gap: 15px; width: 100%;">
+            <input type="text" name="search" placeholder="Поиск..." value="{{ search_query }}" class="form-control">
+            
+            <select name="supplier" class="form-control" style="min-width: 200px;">
+                <option value="">Все поставщики</option>
+                {% for supplier in suppliers %}
+                <option value="{{ supplier.id }}" {% if supplier_filter == supplier.id|stringformat:"s" %}selected{% endif %}>
+                    {{ supplier.name }}
+                </option>
+                {% endfor %}
+            </select>
+            
+            <select name="sort" class="form-control" style="min-width: 200px;">
+                <option value="">Без сортировки</option>
+                <option value="stock" {% if sort_by == 'stock' %}selected{% endif %}>По количеству на складе</option>
+            </select>
+            
+            <button type="submit" class="btn btn-primary">Применить</button>
+            <a href="{% url 'product_list' %}" class="btn btn-secondary">Сбросить</a>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card {% if product.discount > 15 %}high-discount{% elif product.is_out_of_stock %}out-of-stock{% endif %}">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+            {% else %}
+            <img src="{% static 'images/picture.png' %}" alt="No image" class="product-image">
+            {% endif %}
+            
+            <div class="product-article">Артикул: {{ product.article }}</div>
+            <div class="product-name">{{ product.name }}</div>
+            <div class="product-category">{{ product.category.name }}</div>
+            <div class="product-description">{{ product.description }}</div>
+            <div class="product-info">Производитель: {{ product.manufacturer.name }}</div>
+            <div class="product-info">Поставщик: {{ product.supplier.name }}</div>
+            
+            <div class="product-price">
+                {% if product.discount > 0 %}
+                    <span class="original-price">{{ product.price }} ₽</span>
+                    <span class="discounted-price">{{ product.discounted_price }} ₽</span>
+                {% else %}
+                    {{ product.price }} ₽
+                {% endif %}
+                / {{ product.unit }}
+            </div>
+            
+            <div class="product-info">Скидка: {{ product.discount }}%</div>
+            <div class="product-stock">На складе: {{ product.stock_quantity }} {{ product.unit }}</div>
+            
+            {% if role == 'admin' %}
+            <div class="product-actions">
+                <a href="{% url 'product_edit' product.id %}" class="btn btn-primary">Редактировать</a>
+                <a href="{% url 'product_delete' product.id %}" class="btn btn-danger">Удалить</a>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p>Товары не найдены</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
